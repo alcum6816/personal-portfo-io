@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Background Colors */
+    --bg-primary: #000000;
+    --bg-secondary: #0a0a0a;
+    --bg-overlay-1: #0a0a0a7f;
+    --bg-card: #121212;
+    --bg-card-light: #12121233;
+    --bg-card-overlay: #1212127f;
+    --bg-accent: #13cbec;
+    --bg-accent-light: #13cbec19;
+    --bg-section: #1f252e;
+    --bg-section-overlay: #1f252e7f;
+    --bg-highlight: #3c83f6;
+    --bg-highlight-light: #3c83f619;
+
+    /* Text Colors */
+    --text-primary: #ffffff;
+    --text-secondary: #f8fafc;
+    --text-muted: #94a3b8;
+    --text-light: #a1a1aa;
+    --text-accent: #3c83f6;
+  }
+}
+
+@layer utilities {
+  /* Background Colors */
+  .bg-primary {
+    background-color: var(--bg-primary);
+  }
+  .bg-secondary {
+    background-color: var(--bg-secondary);
+  }
+  .bg-overlay-1 {
+    background-color: var(--bg-overlay-1);
+  }
+  .bg-card {
+    background-color: var(--bg-card);
+  }
+  .bg-card-light {
+    background-color: var(--bg-card-light);
+  }
+  .bg-card-overlay {
+    background-color: var(--bg-card-overlay);
+  }
+  .bg-accent {
+    background-color: var(--bg-accent);
+  }
+  .bg-accent-light {
+    background-color: var(--bg-accent-light);
+  }
+  .bg-section {
+    background-color: var(--bg-section);
+  }
+  .bg-section-overlay {
+    background-color: var(--bg-section-overlay);
+  }
+  .bg-highlight {
+    background-color: var(--bg-highlight);
+  }
+  .bg-highlight-light {
+    background-color: var(--bg-highlight-light);
+  }
+
+  /* Text Colors */
+  .text-primary {
+    color: var(--text-primary);
+  }
+  .text-secondary {
+    color: var(--text-secondary);
+  }
+  .text-muted {
+    color: var(--text-muted);
+  }
+  .text-light {
+    color: var(--text-light);
+  }
+  .text-accent {
+    color: var(--text-accent);
+  }
+}
