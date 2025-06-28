@@ -4,11 +4,10 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 import tagger from "@dhiwise/component-tagger";
 
-// https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(),tagger()],
+  plugins: [react(), tagger()],
   build: {
-    outDir: "build",
+    outDir: "build", // stays as "build"
   },
   resolve: {
     alias: {
