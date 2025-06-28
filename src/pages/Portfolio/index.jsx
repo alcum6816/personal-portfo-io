@@ -1,75 +1,97 @@
-
-import { useState, useEffect, useRef } from "react"
-import emailjs from "@emailjs/browser"
-import { motion, useAnimation, useInView, useScroll, useTransform } from "framer-motion"
+import { useState, useEffect, useRef } from "react";
+import emailjs from "@emailjs/browser";
+import { motion, useAnimation, useInView, useScroll, useTransform, AnimatePresence } from "framer-motion";
 
 const Portfolio = () => {
-  const [isLoading, setIsLoading] = useState(true)
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(true);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     message: "",
-  })
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [tappedElements, setTappedElements] = useState(new Set());
 
   // Refs and animation controls for each section
-  const heroRef = useRef(null)
-  const aboutRef = useRef(null)
-  const projectsRef = useRef(null)
-  const skillsRef = useRef(null)
-  const contactRef = useRef(null)
-  const footerRef = useRef(null)
+  const heroRef = useRef(null);
+  const aboutRef = useRef(null);
+  const projectsRef = useRef(null);
+  const skillsRef = useRef(null);
+  const contactRef = useRef(null);
+  const footerRef = useRef(null);
 
-  const heroControls = useAnimation()
-  const aboutControls = useAnimation()
-  const projectsControls = useAnimation()
-  const skillsControls = useAnimation()
-  const contactControls = useAnimation()
-  const footerControls = useAnimation()
+  const heroControls = useAnimation();
+  const aboutControls = useAnimation();
+  const projectsControls = useAnimation();
+  const skillsControls = useAnimation();
+  const contactControls = useAnimation();
+  const footerControls = useAnimation();
 
-  const isHeroInView = useInView(heroRef, { margin: "-100px" })
-  const isAboutInView = useInView(aboutRef, { margin: "-100px" })
-  const isProjectsInView = useInView(projectsRef, { margin: "-100px" })
-  const isSkillsInView = useInView(skillsRef, { margin: "-100px" })
-  const isContactInView = useInView(contactRef, { margin: "-100px" })
-  const isFooterInView = useInView(footerRef, { margin: "-100px" })
+  const isHeroInView = useInView(heroRef, { margin: "-100px" });
+  const isAboutInView = useInView(aboutRef, { margin: "-100px" });
+  const isProjectsInView = useInView(projectsRef, { margin: "-100px" });
+  const isSkillsInView = useInView(skillsRef, { margin: "-100px" });
+  const isContactInView = useInView(contactRef, { margin: "-100px" });
+  const isFooterInView = useInView(footerRef, { margin: "-100px" });
 
   // Scroll-based parallax effect
-  const { scrollYProgress } = useScroll()
-  const parallaxY = useTransform(scrollYProgress, [0, 1], [0, -100])
+  const { scrollYProgress } = useScroll();
+  const parallaxY = useTransform(scrollYProgress, [0, 1], [0, -100]);
+
+  // Tap handler for mobile
+  const handleTap = (elementId) => {
+    setTappedElements((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(elementId)) {
+        newSet.delete(elementId);
+      } else {
+        newSet.add(elementId);
+      }
+      return newSet;
+    });
+
+    // Auto-remove tap effect after 2 seconds
+    setTimeout(() => {
+      setTappedElements((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(elementId);
+        return newSet;
+      });
+    }, 2000);
+  };
 
   // Trigger profile picture animation first, then other content
   useEffect(() => {
     const timer = setTimeout(() => {
-      setIsLoading(false)
-      heroControls.start("visible")
-    }, 1200) // Delay for bounce animation
-    return () => clearTimeout(timer)
-  }, [heroControls])
+      setIsLoading(false);
+      heroControls.start("visible");
+    }, 1200); // Delay for bounce animation
+    return () => clearTimeout(timer);
+  }, [heroControls]);
 
   // Trigger section animations when in view
   useEffect(() => {
-    if (isAboutInView) aboutControls.start("visible")
-    if (isProjectsInView) projectsControls.start("visible")
-    if (isSkillsInView) skillsControls.start("visible")
-    if (isContactInView) contactControls.start("visible")
-    if (isFooterInView) footerControls.start("visible")
-  }, [isAboutInView, isProjectsInView, isSkillsInView, isContactInView, isFooterInView, aboutControls, projectsControls, skillsControls, contactControls, footerControls])
+    if (isAboutInView) aboutControls.start("visible");
+    if (isProjectsInView) projectsControls.start("visible");
+    if (isSkillsInView) skillsControls.start("visible");
+    if (isContactInView) contactControls.start("visible");
+    if (isFooterInView) footerControls.start("visible");
+  }, [isAboutInView, isProjectsInView, isSkillsInView, isContactInView, isFooterInView, aboutControls, projectsControls, skillsControls, contactControls, footerControls]);
 
   const handleFormChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
-    })
-  }
+    });
+  };
 
   const handleFormSubmit = async (e) => {
-    e.preventDefault()
-    setIsSubmitting(true)
+    e.preventDefault();
+    setIsSubmitting(true);
 
     try {
-      emailjs.init("HjVwWPhv4B_4c5RAp")
+      emailjs.init("HjVwWPhv4B_4c5RAp");
       await emailjs.send(
         "service_92kq0p9",
         "template_p5zo9w4",
@@ -79,36 +101,36 @@ const Portfolio = () => {
           message: formData.message,
           to_name: "Afnan Junjwadkar",
         },
-      )
-      alert("Thank you for your message! I will get back to you soon.")
-      setFormData({ name: "", email: "", message: "" })
+      );
+      alert("Thank you for your message! I will get back to you soon.");
+      setFormData({ name: "", email: "", message: "" });
     } catch (error) {
-      console.error("Failed to send email:", error)
-      alert("Sorry, there was an error sending your message. Please try again.")
+      console.error("Failed to send email:", error);
+      alert("Sorry, there was an error sending your message. Please try again.");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const scrollToSection = (sectionId) => {
-    const element = document.getElementById(sectionId)
+    const element = document.getElementById(sectionId);
     if (element) {
-      element.scrollIntoView({ behavior: "smooth", block: "start" })
-      setIsMenuOpen(false)
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+      setIsMenuOpen(false);
     }
-  }
+  };
 
   const handleDownloadResume = () => {
-    window.open("https://drive.google.com/file/d/1N5OBM7DXegUC37nMVoe9G9kOGKKBLvcS/view?usp=sharing", "_blank")
-  }
+    window.open("https://drive.google.com/file/d/1N5OBM7DXegUC37nMVoe9G9kOGKKBLvcS/view?usp=sharing", "_blank");
+  };
 
   const handleGitHubClick = () => {
-    window.open("https://github.com/alcum6816", "_blank")
-  }
+    window.open("https://github.com/alcum6816", "_blank");
+  };
 
   const handleLinkedInClick = () => {
-    window.open("https://in.linkedin.com/in/afnan-junjwadkar-344ba01a0", "_blank")
-  }
+    window.open("https://in.linkedin.com/in/afnan-junjwadkar-344ba01a0", "_blank");
+  };
 
   const projects = [
     {
@@ -146,7 +168,7 @@ const Portfolio = () => {
       image: "/images/img_iot_switch.png",
       technologies: ["Arduino", "ESP32", "React.js", "MQTT"],
     },
-  ]
+  ];
 
   const skills = [
     {
@@ -179,187 +201,230 @@ const Portfolio = () => {
       icon: "/images/img__3.png",
       items: ["Arduino", "ESP32", "Raspberry Pi", "MQTT", "Sensor Integration"],
     },
-  ]
+  ];
 
   // Animation variants
   const sectionVariants = {
     hidden: { opacity: 0, y: 60 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
-      transition: { 
+      transition: {
         type: "spring",
         stiffness: 100,
         damping: 20,
         mass: 0.8,
         duration: 1.2,
         when: "beforeChildren",
-        staggerChildren: 0.15
-      }
-    }
-  }
+        staggerChildren: 0.15,
+      },
+    },
+  };
 
   const cardVariants = {
     hidden: { opacity: 0, y: 40, scale: 0.95, rotate: -5 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
       scale: 1,
       rotate: 0,
-      transition: { 
+      transition: {
         type: "spring",
         stiffness: 120,
         damping: 15,
         mass: 0.6,
-        duration: 0.8
-      }
+        duration: 0.8,
+      },
     },
-    hover: { 
-      scale: 1.05, 
+    hover: {
+      scale: 1.05,
       y: -10,
       rotate: 2,
       boxShadow: "0 15px 30px rgba(59, 130, 246, 0.2), 0 5px 15px rgba(34, 211, 238, 0.2)",
-      transition: { 
+      transition: {
         type: "spring",
         stiffness: 300,
-        damping: 20
-      }
-    }
-  }
+        damping: 20,
+      },
+    },
+    tap: {
+      scale: 1.02,
+      y: -5,
+      rotate: 1,
+      boxShadow: "0 10px 20px rgba(59, 130, 246, 0.3), 0 3px 10px rgba(34, 211, 238, 0.3)",
+      transition: {
+        type: "spring",
+        stiffness: 400,
+        damping: 25,
+      },
+    },
+  };
 
   const buttonVariants = {
     hidden: { opacity: 0, x: -20, rotate: -5 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       x: 0,
       rotate: 0,
-      transition: { 
+      transition: {
         type: "spring",
         stiffness: 120,
-        damping: 15
-      }
+        damping: 15,
+      },
     },
-    hover: { 
+    hover: {
       scale: 1.08,
       rotate: 3,
       boxShadow: "0 8px 20px rgba(59, 130, 246, 0.3)",
-      transition: { 
+      transition: {
         type: "spring",
         stiffness: 300,
-        damping: 20
-      }
+        damping: 20,
+      },
     },
-    tap: { scale: 0.95, rotate: -2 }
-  }
+    tap: {
+      scale: 0.95,
+      rotate: -2,
+      boxShadow: "0 6px 15px rgba(59, 130, 246, 0.4)",
+      transition: {
+        type: "spring",
+        stiffness: 400,
+        damping: 25,
+      },
+    },
+  };
 
   const imageVariants = {
     initial: { scale: 1.2, y: 20 },
-    animate: { 
+    animate: {
       scale: 1,
       y: 0,
-      transition: { 
+      transition: {
         duration: 5,
         ease: "easeInOut",
         repeat: Infinity,
-        repeatType: "reverse"
-      }
+        repeatType: "reverse",
+      },
     },
-    hover: { 
+    hover: {
       scale: 1.1,
       rotate: 3,
-      transition: { duration: 0.4 }
-    }
-  }
+      transition: { duration: 0.4 },
+    },
+    tap: {
+      scale: 1.08,
+      rotate: 2,
+      transition: { duration: 0.3 },
+    },
+  };
 
   const profilePictureVariants = {
-    hidden: { 
-      opacity: 0, 
+    hidden: {
+      opacity: 0,
       scale: 0.3,
       rotate: -15,
-      y: 50
+      y: 50,
     },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       scale: 1,
       rotate: 0,
       y: 0,
-      transition: { 
+      transition: {
         type: "spring",
         stiffness: 100,
         damping: 15,
         mass: 0.8,
-        duration: 1.2
-      }
-    }
-  }
+        duration: 1.2,
+      },
+    },
+    tap: {
+      scale: 1.03,
+      rotate: 3,
+      transition: { type: "spring", stiffness: 200 },
+    },
+  };
 
   const textVariants = {
     hidden: { opacity: 0, x: -30, rotate: -5 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       x: 0,
       rotate: 0,
-      transition: { 
+      transition: {
         type: "spring",
         stiffness: 100,
         damping: 20,
-        duration: 0.8
-      }
-    }
-  }
+        duration: 0.8,
+      },
+    },
+  };
 
   const letterVariants = {
     hidden: { opacity: 0, y: 20, rotate: -10 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
       rotate: 0,
-      transition: { type: "spring", stiffness: 120, damping: 15 }
-    }
-  }
+      transition: { type: "spring", stiffness: 120, damping: 15 },
+    },
+  };
 
   const parallaxVariants = {
     hidden: { y: 50, opacity: 0.3 },
-    visible: { 
-      y: 0, 
+    visible: {
+      y: 0,
       opacity: 0.7,
-      transition: { 
+      transition: {
         type: "spring",
         stiffness: 80,
         damping: 25,
-        duration: 1.5
-      }
-    }
-  }
+        duration: 1.5,
+      },
+    },
+  };
 
   const listItemVariants = {
     hidden: { opacity: 0, x: -20, scale: 0.8 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       x: 0,
       scale: 1,
-      transition: { type: "spring", stiffness: 120, damping: 15 }
-    }
-  }
+      transition: { type: "spring", stiffness: 120, damping: 15 },
+    },
+    hover: {
+      scale: 1.1,
+      backgroundColor: "#e0f7fa",
+      boxShadow: "0 4px 10px rgba(59, 130, 246, 0.2)",
+      transition: { type: "spring", stiffness: 200, damping: 20 },
+    },
+    tap: {
+      scale: 1.08,
+      backgroundColor: "#e0f7fa",
+      boxShadow: "0 3px 8px rgba(59, 130, 246, 0.3)",
+      transition: { type: "spring", stiffness: 250, damping: 25 },
+    },
+  };
 
   // Split text into letters for animation
-  const splitText = (text) => text.split("").map((char, index) => (
-    <motion.span
-      key={index}
-      variants={letterVariants}
-      initial="hidden"
-      animate="visible"
-      transition={{ delay: index * 0.05 }}
-      className="inline-block"
-    >
-      {char === " " ? "\u00A0" : char}
-    </motion.span>
-  ))
+  const splitText = (text) =>
+    text.split("").map((char, index) => (
+      <motion.span
+        key={index}
+        variants={letterVariants}
+        initial="hidden"
+        animate="visible"
+        transition={{ delay: index * 0.05 }}
+        className="inline-block"
+      >
+        {char === " " ? "\u00A0" : char}
+      </motion.span>
+    ));
 
   return (
     <div className="min-h-screen bg-secondary">
       {/* Header */}
-      <motion.header 
+      <motion.header
         className="fixed top-0 w-full z-50 bg-secondary/80 backdrop-blur-sm"
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -367,13 +432,14 @@ const Portfolio = () => {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <motion.div 
+            <motion.div
               className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-cyan-400 bg-clip-text text-transparent"
               variants={textVariants}
               initial="hidden"
               animate="visible"
               transition={{ delay: isLoading ? 1.4 : 0.3 }}
-              whileHover={{ scale: 1.05 }}
+              whileHover="hover"
+              whileTap="tap"
             >
               Afnan.dev
             </motion.div>
@@ -382,13 +448,18 @@ const Portfolio = () => {
                 <motion.button
                   key={section}
                   onClick={() => scrollToSection(section)}
-                  className="text-muted hover:text-primary transition-colors duration-500"
+                  onTouchStart={() => scrollToSection(section)}
+                  onTap={() => handleTap(`nav-${section}`)}
+                  className={`text-muted hover:text-primary transition-colors duration-500 ${
+                    tappedElements.has(`nav-${section}`) ? "scale-108 rotate-3 shadow-lg" : ""
+                  }`}
                   variants={buttonVariants}
                   whileHover="hover"
                   whileTap="tap"
                   initial="hidden"
                   animate="visible"
                   transition={{ delay: isLoading ? 1.5 + index * 0.1 : 0.4 + index * 0.1 }}
+                  aria-label={`Navigate to ${section} section`}
                 >
                   {section.charAt(0).toUpperCase() + section.slice(1)}
                 </motion.button>
@@ -398,46 +469,57 @@ const Portfolio = () => {
               <motion.button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 className="text-muted hover:text-primary"
-                whileHover={{ scale: 1.1, rotate: 5 }}
-                whileTap={{ scale: 0.9 }}
+                whileHover="hover"
+                whileTap="tap"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
+                  />
                 </svg>
               </motion.button>
             </div>
           </div>
-          {isMenuOpen && (
-            <motion.nav
-              className="md:hidden bg-secondary/95 backdrop-blur-sm py-4"
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ type: "spring", stiffness: 120, damping: 20 }}
-            >
-              {["home", "about", "projects", "skills", "contact"].map((section, index) => (
-                <motion.button
-                  key={section}
-                  onClick={() => scrollToSection(section)}
-                  className="block w-full text-left px-4 py-2 text-muted hover:text-primary transition-colors duration-300"
-                  variants={buttonVariants}
-                  whileHover="hover"
-                  whileTap="tap"
-                  initial="hidden"
-                  animate="visible"
-                  transition={{ delay: index * 0.1 }}
-                >
-                  {section.charAt(0).toUpperCase() + section.slice(1)}
-                </motion.button>
-              ))}
-            </motion.nav>
-          )}
+          <AnimatePresence>
+            {isMenuOpen && (
+              <motion.nav
+                className="md:hidden bg-secondary/95 backdrop-blur-sm py-4"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ type: "spring", stiffness: 120, damping: 20 }}
+              >
+                {["home", "about", "projects", "skills", "contact"].map((section, index) => (
+                  <motion.button
+                    key={section}
+                    onClick={() => scrollToSection(section)}
+                    onTouchStart={() => scrollToSection(section)}
+                    onTap={() => handleTap(`nav-${section}`)}
+                    className={`block w-full text-left px-4 py-2 text-muted hover:text-primary transition-colors duration-300 ${
+                      tappedElements.has(`nav-${section}`) ? "scale-108 rotate-3 shadow-lg" : ""
+                    }`}
+                    variants={buttonVariants}
+                    whileHover="hover"
+                    whileTap="tap"
+                    initial="hidden"
+                    animate="visible"
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    {section.charAt(0).toUpperCase() + section.slice(1)}
+                  </motion.button>
+                ))}
+              </motion.nav>
+            )}
+          </AnimatePresence>
         </div>
       </motion.header>
 
       {/* Hero Section */}
-      <motion.section 
-        id="home" 
+      <motion.section
+        id="home"
         className="min-h-[calc(100vh-4rem)] flex items-center justify-center relative overflow-hidden pt-24 sm:pt-28"
         ref={heroRef}
         variants={sectionVariants}
@@ -446,16 +528,20 @@ const Portfolio = () => {
         viewport={{ once: true, margin: "-200px" }}
       >
         <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center relative z-20">
-          <motion.div 
+          <motion.div
             className="mb-8 mt-8 sm:mt-12"
             variants={profilePictureVariants}
             initial="hidden"
             animate="visible"
+            onTap={() => handleTap("profile-pic")}
           >
             <div className="w-24 sm:w-28 md:w-32 h-24 sm:h-28 md:h-32 mx-auto rounded-full bg-gradient-to-br from-blue-500 to-cyan-400 p-1">
-              <motion.div 
-                className="w-full h-full rounded-full bg-card p-1"
-                whileHover={{ scale: 1.05, rotate: 5 }}
+              <motion.div
+                className={`w-full h-full rounded-full bg-card p-1 ${
+                  tappedElements.has("profile-pic") ? "scale-103 rotate-3" : ""
+                }`}
+                whileHover="hover"
+                whileTap="tap"
                 transition={{ type: "spring", stiffness: 200 }}
               >
                 <img
@@ -468,7 +554,7 @@ const Portfolio = () => {
           </motion.div>
           {!isLoading && (
             <>
-              <motion.div 
+              <motion.div
                 className="text-base sm:text-lg text-muted mb-4"
                 variants={textVariants}
                 initial="hidden"
@@ -477,7 +563,7 @@ const Portfolio = () => {
               >
                 👋 Hi there! I am
               </motion.div>
-              <motion.h1 
+              <motion.h1
                 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6"
                 variants={sectionVariants}
                 initial="hidden"
@@ -488,11 +574,9 @@ const Portfolio = () => {
                   {splitText("Afnan")}
                 </span>
                 <br />
-                <span className="text-secondary">
-                  {splitText("Junjwadkar")}
-                </span>
+                <span className="text-secondary">{splitText("Junjwadkar")}</span>
               </motion.h1>
-              <motion.p 
+              <motion.p
                 className="text-lg sm:text-xl md:text-2xl text-muted mb-8 max-w-3xl mx-auto leading-relaxed"
                 variants={textVariants}
                 initial="hidden"
@@ -500,45 +584,51 @@ const Portfolio = () => {
                 transition={{ delay: 0.4 }}
               >
                 Full-Stack, Next.js & Android Developer specializing in{" "}
-                <motion.span 
+                <motion.span
                   className="text-blue-500 font-semibold"
-                  whileHover={{ scale: 1.05, color: "#22d3ee" }}
-                  transition={{ duration: 0.3 }}
+                  whileHover="hover"
+                  whileTap="tap"
+                  variants={buttonVariants}
                 >
                   React.js
-                </motion.span>,{" "}
-                <motion.span 
+                </motion.span>
+                ,{" "}
+                <motion.span
                   className="text-cyan-400 font-semibold"
-                  whileHover={{ scale: 1.05, color: "#3b82f6" }}
-                  transition={{ duration: 0.3 }}
+                  whileHover="hover"
+                  whileTap="tap"
+                  variants={buttonVariants}
                 >
                   Firebase
-                </motion.span>, and{" "}
-                <motion.span 
+                </motion.span>
+                , and{" "}
+                <motion.span
                   className="text-blue-500 font-semibold"
-                  whileHover={{ scale: 1.05, color: "#22d3ee" }}
-                  transition={{ duration: 0.3 }}
+                  whileHover="hover"
+                  whileTap="tap"
+                  variants={buttonVariants}
                 >
                   IoT applications
                 </motion.span>
               </motion.p>
-              <motion.div 
+              <motion.div
                 className="flex items-center justify-center mb-8"
                 variants={textVariants}
                 initial="hidden"
                 animate="visible"
                 transition={{ delay: 0.5 }}
               >
-                <motion.img 
-                  src="/images/img_.png" 
-                  alt="Location" 
+                <motion.img
+                  src="/images/img_.png"
+                  alt="Location"
                   className="w-4 h-4 mr-2"
-                  whileHover={{ rotate: 360, scale: 1.2 }}
-                  transition={{ duration: 0.6 }}
+                  whileHover="hover"
+                  whileTap="tap"
+                  variants={buttonVariants}
                 />
                 <span className="text-muted">Belagavi, Karnataka, India</span>
               </motion.div>
-              <motion.div 
+              <motion.div
                 className="flex flex-col sm:flex-row gap-4 justify-center mb-12"
                 variants={sectionVariants}
                 initial="hidden"
@@ -564,7 +654,7 @@ const Portfolio = () => {
                   Let's Connect
                 </motion.button>
               </motion.div>
-              <motion.div 
+              <motion.div
                 className="flex flex-wrap justify-center gap-6 sm:gap-8"
                 variants={sectionVariants}
                 initial="hidden"
@@ -572,21 +662,38 @@ const Portfolio = () => {
                 transition={{ delay: 0.7 }}
               >
                 {["React", "Android", "Firebase", "Next.js"].map((tech, index) => (
-                  <motion.div 
+                  <motion.div
                     key={tech}
                     className="text-center"
                     variants={cardVariants}
                     whileHover="hover"
+                    whileTap="tap"
                     initial="hidden"
                     animate="visible"
                     transition={{ delay: 0.8 + index * 0.15 }}
+                    onTap={() => handleTap(`tech-${tech}`)}
                   >
-                    <motion.div 
-                      className="w-10 sm:w-12 h-10 sm:h-12 bg-card rounded-lg flex items-center justify-center mb-2"
-                      whileHover={{ rotate: 15, scale: 1.2, boxShadow: "0 5px 15px rgba(59, 130, 246, 0.3)" }}
-                      transition={{ type: "spring", stiffness: 200 }}
+                    <motion.div
+                      className={`w-10 sm:w-12 h-10 sm:h-12 bg-card rounded-lg flex items-center justify-center mb-2 ${
+                        tappedElements.has(`tech-${tech}`) ? "rotate-15 scale-120 shadow-lg" : ""
+                      }`}
+                      whileHover="hover"
+                      whileTap="tap"
+                      variants={cardVariants}
                     >
-                      <img src={`/images/${tech === "React" ? "svg.svg" : tech === "Android" ? "img__32x24.png" : tech === "Firebase" ? "img__1.png" : "img__2.png"}`} alt={tech} className="w-6 sm:w-8 h-5 sm:h-6" />
+                      <img
+                        src={`/images/${
+                          tech === "React"
+                            ? "svg.svg"
+                            : tech === "Android"
+                            ? "img__32x24.png"
+                            : tech === "Firebase"
+                            ? "img__1.png"
+                            : "img__2.png"
+                        }`}
+                        alt={tech}
+                        className="w-6 sm:w-8 h-5 sm:h-6"
+                      />
                     </motion.div>
                     <span className="text-xs text-muted">{tech}</span>
                   </motion.div>
@@ -598,8 +705,8 @@ const Portfolio = () => {
       </motion.section>
 
       {/* About Section */}
-      <motion.section 
-        id="about" 
+      <motion.section
+        id="about"
         className="py-16 sm:py-20 bg-card-light relative"
         ref={aboutRef}
         variants={sectionVariants}
@@ -607,7 +714,7 @@ const Portfolio = () => {
         animate={aboutControls}
         viewport={{ once: true, margin: "-200px" }}
       >
-        <motion.div 
+        <motion.div
           className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-cyan-400/5"
           style={{ y: parallaxY, translateY: parallaxY }}
           variants={parallaxVariants}
@@ -615,40 +722,51 @@ const Portfolio = () => {
           animate={aboutControls}
         />
         <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
-          <motion.div 
-            className="text-center mb-12 sm:mb-16"
-            variants={sectionVariants}
-          >
+          <motion.div className="text-center mb-12 sm:mb-16" variants={sectionVariants}>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
               <span className="text-secondary">{splitText("About ")}</span>
-              <span className="bg-gradient-to-r from-blue-500 to-cyan-400 bg-clip-text text-transparent">{splitText("Me")}</span>
+              <span className="bg-gradient-to-r from-blue-500 to-cyan-400 bg-clip-text text-transparent">
+                {splitText("Me")}
+              </span>
             </h2>
-            <motion.p 
-              className="text-lg sm:text-xl text-muted"
-              variants={textVariants}
-            >
+            <motion.p className="text-lg sm:text-xl text-muted" variants={textVariants}>
               Passionate about crafting digital experiences that make a difference
             </motion.p>
           </motion.div>
           <div className="grid md:grid-cols-2 gap-8 sm:gap-12 items-start">
-            <motion.div 
-              className="space-y-6"
-              variants={sectionVariants}
-            >
-              <motion.p 
-                className="text-base sm:text-lg text-muted leading-relaxed"
-                variants={textVariants}
-              >
-                I am <motion.span className="text-blue-500 font-semibold" whileHover={{ scale: 1.05, color: "#22d3ee" }}>Afnan Junjwadkar</motion.span>, a software developer
-                specializing in responsive web interfaces and mobile applications. With a focus on{" "}
-                <motion.span className="text-cyan-400 font-semibold" whileHover={{ scale: 1.05, color: "#3b82f6" }}>React.js</motion.span> and{" "}
-                <motion.span className="text-cyan-400 font-semibold" whileHover={{ scale: 1.05, color: "#3b82f6" }}>Next.js</motion.span> frameworks, I also bring experience in
-                building real-time IoT applications and Android tools using Firebase.
+            <motion.div className="space-y-6" variants={sectionVariants}>
+              <motion.p className="text-base sm:text-lg text-muted leading-relaxed" variants={textVariants}>
+                I am{" "}
+                <motion.span
+                  className="text-blue-500 font-semibold"
+                  whileHover="hover"
+                  whileTap="tap"
+                  variants={buttonVariants}
+                >
+                  Afnan Junjwadkar
+                </motion.span>
+                , a software developer specializing in responsive web interfaces and mobile applications. With a focus on{" "}
+                <motion.span
+                  className="text-cyan-400 font-semibold"
+                  whileHover="hover"
+                  whileTap="tap"
+                  variants={buttonVariants}
+                >
+                  React.js
+                </motion.span>{" "}
+                and{" "}
+                <motion.span
+                  className="text-cyan-400 font-semibold"
+                  whileHover="hover"
+                  whileTap="tap"
+                  variants={buttonVariants}
+                >
+                  Next.js
+                </motion.span>{" "}
+                frameworks, I also bring experience in building real-time IoT applications and Android tools using
+                Firebase.
               </motion.p>
-              <motion.p 
-                className="text-base sm:text-lg text-muted leading-relaxed"
-                variants={textVariants}
-              >
+              <motion.p className="text-base sm:text-lg text-muted leading-relaxed" variants={textVariants}>
                 I am passionate about clean code, elegant UI, and performance-first design. My goal is to create digital
                 solutions that not only look great but also provide exceptional user experiences.
               </motion.p>
@@ -659,75 +777,81 @@ const Portfolio = () => {
                 whileHover="hover"
                 whileTap="tap"
               >
-                <motion.img 
-                  src="/images/img_component_1_white_a700.svg" 
-                  alt="Download" 
+                <motion.img
+                  src="/images/img_component_1_white_a700.svg"
+                  alt="Download"
                   className="w-4 h-4 mr-2"
-                  whileHover={{ rotate: 360, scale: 1.2 }}
-                  transition={{ duration: 0.6 }}
+                  whileHover="hover"
+                  whileTap="tap"
+                  variants={buttonVariants}
                 />
                 Download Resume
               </motion.button>
             </motion.div>
-            <motion.div 
-              className="space-y-4"
-              variants={sectionVariants}
-            >
+            <motion.div className="space-y-4" variants={sectionVariants}>
               {[
                 { title: "Location", content: "Belagavi, Karnataka", icon: "/images/img_overlay.svg" },
-                { 
-                  title: "Languages", 
-                  content: ["Hindi", "English", "Kannada", "Marathi"], 
+                {
+                  title: "Languages",
+                  content: ["Hindi", "English", "Kannada", "Marathi"],
                   icon: "/images/img_overlay_cyan_400.svg",
-                  isList: true 
+                  isList: true,
                 },
-                { title: "Email", content: "afnanjunjwadkar786@gmail.com", icon: "/images/img_overlay_blue_a200.svg" }
+                { title: "Email", content: "afnanjunjwadkar786@gmail.com", icon: "/images/img_overlay_blue_a200.svg" },
               ].map((item, index) => (
-                <motion.div 
+                <motion.div
                   key={index}
-                  className="bg-card-overlay border border-section rounded-lg p-4 sm:p-6"
+                  className={`bg-card-overlay border border-section rounded-lg p-4 sm:p-6 ${
+                    tappedElements.has(`about-item-${index}`) ? "scale-105 -translate-y-2 rotate-2 shadow-xl" : ""
+                  }`}
                   variants={cardVariants}
                   whileHover="hover"
+                  whileTap="tap"
                   initial="hidden"
                   animate="visible"
                   transition={{ delay: index * 0.15 }}
+                  onTap={() => handleTap(`about-item-${index}`)}
                 >
                   <div className={item.isList ? "flex items-start" : "flex items-center"}>
-                    <motion.div 
-                      className={`w-10 sm:w-12 h-10 sm:h-12 ${item.isList ? "bg-accent-light" : "bg-highlight-light"} rounded-lg flex items-center justify-center mr-4 ${item.isList ? "flex-shrink-0" : ""}`}
-                      whileHover={{ scale: 1.2, rotate: 10, boxShadow: "0 5px 15px rgba(59, 130, 246, 0.3)" }}
-                      transition={{ type: "spring", stiffness: 200 }}
+                    <motion.div
+                      className={`w-10 sm:w-12 h-10 sm:h-12 ${
+                        item.isList ? "bg-accent-light" : "bg-highlight-light"
+                      } rounded-lg flex items-center justify-center mr-4 ${item.isList ? "flex-shrink-0" : ""} ${
+                        tappedElements.has(`about-icon-${index}`) ? "scale-120 rotate-10 shadow-lg" : ""
+                      }`}
+                      whileHover="hover"
+                      whileTap="tap"
+                      variants={cardVariants}
+                      onTap={() => handleTap(`about-icon-${index}`)}
                     >
                       <img src={item.icon} alt={item.title} className="w-6 h-6" />
                     </motion.div>
                     <div className={item.isList ? "flex-1" : ""}>
-                      <motion.h3 
-                        className="text-secondary font-semibold mb-3"
-                        variants={textVariants}
-                      >
+                      <motion.h3 className="text-secondary font-semibold mb-3" variants={textVariants}>
                         {splitText(item.title)}
                       </motion.h3>
                       {item.isList ? (
                         <div className="flex flex-wrap gap-2">
                           {item.content.map((lang, idx) => (
-                            <motion.span 
+                            <motion.span
                               key={lang}
-                              className="px-3 py-1 bg-section text-muted text-sm rounded-full"
+                              className={`px-3 py-1 bg-section text-muted text-sm rounded-full ${
+                                tappedElements.has(`lang-${lang}`) ? "scale-110 bg-cyan-100 shadow-md" : ""
+                              }`}
                               variants={listItemVariants}
                               initial="hidden"
                               animate="visible"
                               transition={{ delay: idx * 0.05 }}
-                              whileHover={{ scale: 1.1, backgroundColor: "#e0f7fa", boxShadow: "0 4px 10px rgba(59, 130, 246, 0.2)" }}
+                              whileHover="hover"
+                              whileTap="tap"
+                              onTap={() => handleTap(`lang-${lang}`)}
                             >
                               {lang}
                             </motion.span>
                           ))}
                         </div>
                       ) : (
-                        <motion.p 
-                          className="text-muted text-sm sm:text-base"
-                          variants={textVariants}
-                        >
+                        <motion.p className="text-muted text-sm sm:text-base" variants={textVariants}>
                           {item.content}
                         </motion.p>
                       )}
@@ -741,8 +865,8 @@ const Portfolio = () => {
       </motion.section>
 
       {/* Projects Section */}
-      <motion.section 
-        id="projects" 
+      <motion.section
+        id="projects"
         className="py-16 sm:py-20 relative"
         ref={projectsRef}
         variants={sectionVariants}
@@ -750,7 +874,7 @@ const Portfolio = () => {
         animate={projectsControls}
         viewport={{ once: true, margin: "-200px" }}
       >
-        <motion.div 
+        <motion.div
           className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-cyan-400/5"
           style={{ y: parallaxY, translateY: parallaxY }}
           variants={parallaxVariants}
@@ -758,18 +882,14 @@ const Portfolio = () => {
           animate={projectsControls}
         />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-          <motion.div 
-            className="text-center mb-12 sm:mb-16"
-            variants={sectionVariants}
-          >
+          <motion.div className="text-center mb-12 sm:mb-16" variants={sectionVariants}>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
               <span className="text-secondary">{splitText("Featured ")}</span>
-              <span className="bg-gradient-to-r from-blue-500 to-cyan-400 bg-clip-text text-transparent">{splitText("Projects")}</span>
+              <span className="bg-gradient-to-r from-blue-500 to-cyan-400 bg-clip-text text-transparent">
+                {splitText("Projects")}
+              </span>
             </h2>
-            <motion.p 
-              className="text-lg sm:text-xl text-muted max-w-3xl mx-auto"
-              variants={textVariants}
-            >
+            <motion.p className="text-lg sm:text-xl text-muted max-w-3xl mx-auto" variants={textVariants}>
               A showcase of my latest work in web development, mobile apps, and IoT solutions
             </motion.p>
           </motion.div>
@@ -777,13 +897,17 @@ const Portfolio = () => {
             {projects.map((project, index) => (
               <motion.div
                 key={project.id}
-                className="bg-card-overlay border border-section rounded-lg overflow-hidden transition-all duration-500"
+                className={`bg-card-overlay border border-section rounded-lg overflow-hidden transition-all duration-500 ${
+                  tappedElements.has(`project-${project.id}`) ? "scale-105 -translate-y-2 rotate-2 shadow-xl" : ""
+                }`}
                 variants={cardVariants}
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, margin: "-100px" }}
                 whileHover="hover"
+                whileTap="tap"
                 transition={{ delay: index * 0.15 }}
+                onTap={() => handleTap(`project-${project.id}`)}
               >
                 <div className="relative overflow-hidden">
                   <motion.img
@@ -794,37 +918,37 @@ const Portfolio = () => {
                     initial="initial"
                     animate="animate"
                     whileHover="hover"
+                    whileTap="tap"
                   />
-                  <motion.div 
+                  <motion.div
                     className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"
                     initial={{ opacity: 0.6 }}
                     whileHover={{ opacity: 0.8 }}
+                    whileTap={{ opacity: 0.7 }}
                     transition={{ duration: 0.4 }}
                   />
                 </div>
                 <div className="p-4 sm:p-6">
-                  <motion.h3 
-                    className="text-lg sm:text-xl font-semibold text-secondary mb-2"
-                    variants={textVariants}
-                  >
+                  <motion.h3 className="text-lg sm:text-xl font-semibold text-secondary mb-2" variants={textVariants}>
                     {splitText(project.title)}
                   </motion.h3>
-                  <motion.p 
-                    className="text-muted mb-4 text-sm sm:text-base leading-relaxed"
-                    variants={textVariants}
-                  >
+                  <motion.p className="text-muted mb-4 text-sm sm:text-base leading-relaxed" variants={textVariants}>
                     {project.description}
                   </motion.p>
                   <div className="flex flex-wrap gap-2 mb-4">
                     {project.technologies.map((tech, idx) => (
                       <motion.span
                         key={tech}
-                        className="px-3 py-1 bg-highlight-light text-blue-500 text-xs sm:text-sm font-semibold rounded-full"
+                        className={`px-3 py-1 bg-highlight-light text-blue-500 text-xs sm:text-sm font-semibold rounded-full ${
+                          tappedElements.has(`tech-${tech}-${project.id}`) ? "scale-110 bg-cyan-100 shadow-md" : ""
+                        }`}
                         variants={listItemVariants}
                         initial="hidden"
                         animate="visible"
                         transition={{ delay: idx * 0.05 }}
-                        whileHover={{ scale: 1.1, backgroundColor: "#e0f7fa", boxShadow: "0 4px 10px rgba(59, 130, 246, 0.2)" }}
+                        whileHover="hover"
+                        whileTap="tap"
+                        onTap={() => handleTap(`tech-${tech}-${project.id}`)}
                       >
                         {tech}
                       </motion.span>
@@ -843,10 +967,7 @@ const Portfolio = () => {
               </motion.div>
             ))}
           </div>
-          <motion.div 
-            className="text-center"
-            variants={sectionVariants}
-          >
+          <motion.div className="text-center" variants={sectionVariants}>
             <motion.button
               onClick={handleGitHubClick}
               className="px-6 sm:px-8 py-3 border border-blue-500 text-blue-500 rounded-md font-medium hover:bg-blue-500/20 transition-all duration-500"
@@ -861,8 +982,8 @@ const Portfolio = () => {
       </motion.section>
 
       {/* Skills Section */}
-      <motion.section 
-        id="skills" 
+      <motion.section
+        id="skills"
         className="py-16 sm:py-20 bg-card-light relative"
         ref={skillsRef}
         variants={sectionVariants}
@@ -870,7 +991,7 @@ const Portfolio = () => {
         animate={skillsControls}
         viewport={{ once: true, margin: "-200px" }}
       >
-        <motion.div 
+        <motion.div
           className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-cyan-400/5"
           style={{ y: parallaxY, translateY: parallaxY }}
           variants={parallaxVariants}
@@ -878,60 +999,65 @@ const Portfolio = () => {
           animate={skillsControls}
         />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-          <motion.div 
-            className="text-center mb-12 sm:mb-16"
-            variants={sectionVariants}
-          >
+          <motion.div className="text-center mb-12 sm:mb-16" variants={sectionVariants}>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
               <span className="text-secondary">{splitText("Technical ")}</span>
-              <span className="bg-gradient-to-r from-blue-500 to-cyan-400 bg-clip-text text-transparent">{splitText("Skills")}</span>
+              <span className="bg-gradient-to-r from-blue-500 to-cyan-400 bg-clip-text text-transparent">
+                {splitText("Skills")}
+              </span>
             </h2>
-            <motion.p 
-              className="text-lg sm:text-xl text-muted"
-              variants={textVariants}
-            >
+            <motion.p className="text-lg sm:text-xl text-muted" variants={textVariants}>
               A comprehensive toolkit for building modern digital solutions
             </motion.p>
           </motion.div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-12">
             {skills.map((skill, index) => (
-              <motion.div 
+              <motion.div
                 key={index}
-                className="bg-card-overlay border border-section rounded-lg p-4 sm:p-6"
+                className={`bg-card-overlay border border-section rounded-lg p-4 sm:p-6 ${
+                  tappedElements.has(`skill-${index}`) ? "scale-105 -translate-y-2 rotate-2 shadow-xl" : ""
+                }`}
                 variants={cardVariants}
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, margin: "-100px" }}
                 whileHover="hover"
+                whileTap="tap"
                 transition={{ delay: index * 0.15 }}
+                onTap={() => handleTap(`skill-${index}`)}
               >
                 <div className="text-center mb-6">
-                  <motion.div 
-                    className="w-12 sm:w-16 h-12 sm:h-16 bg-gradient-to-br from-blue-500/20 to-cyan-400/20 rounded-full flex items-center justify-center mx-auto mb-4"
-                    whileHover={{ scale: 1.15, rotate: 15, boxShadow: "0 5px 15px rgba(59, 130, 246, 0.3)" }}
-                    transition={{ type: "spring", stiffness: 200 }}
+                  <motion.div
+                    className={`w-12 sm:w-16 h-12 sm:h-16 bg-gradient-to-br from-blue-500/20 to-cyan-400/20 rounded-full flex items-center justify-center mx-auto mb-4 ${
+                      tappedElements.has(`skill-icon-${index}`) ? "scale-115 rotate-15 shadow-lg" : ""
+                    }`}
+                    whileHover="hover"
+                    whileTap="tap"
+                    variants={cardVariants}
+                    onTap={() => handleTap(`skill-icon-${index}`)}
                   >
                     {skill.icon && (
                       <img src={skill.icon || "/placeholder.svg"} alt={skill.category} className="w-6 sm:w-8 h-5 sm:h-6" />
                     )}
                   </motion.div>
-                  <motion.h3 
-                    className="text-lg sm:text-xl font-semibold text-secondary"
-                    variants={textVariants}
-                  >
+                  <motion.h3 className="text-lg sm:text-xl font-semibold text-secondary" variants={textVariants}>
                     {splitText(skill.category)}
                   </motion.h3>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {skill.items.map((item, idx) => (
-                    <motion.span 
+                    <motion.span
                       key={item}
-                      className="px-3 py-1 bg-section-overlay text-muted text-sm rounded-full"
+                      className={`px-3 py-1 bg-section-overlay text-muted text-sm rounded-full ${
+                        tappedElements.has(`skill-item-${item}`) ? "scale-110 bg-cyan-100 shadow-md" : ""
+                      }`}
                       variants={listItemVariants}
                       initial="hidden"
                       animate="visible"
                       transition={{ delay: idx * 0.05 }}
-                      whileHover={{ scale: 1.1, backgroundColor: "#e0f7fa", boxShadow: "0 4px 10px rgba(59, 130, 246, 0.2)" }}
+                      whileHover="hover"
+                      whileTap="tap"
+                      onTap={() => handleTap(`skill-item-${item}`)}
                     >
                       {item}
                     </motion.span>
@@ -940,40 +1066,36 @@ const Portfolio = () => {
               </motion.div>
             ))}
           </div>
-          <motion.div 
-            className="text-center"
-            variants={sectionVariants}
-          >
-            <motion.h3 
-              className="text-xl sm:text-2xl font-semibold text-secondary mb-6"
-              variants={textVariants}
-            >
+          <motion.div className="text-center" variants={sectionVariants}>
+            <motion.h3 className="text-xl sm:text-2xl font-semibold text-secondary mb-6" variants={textVariants}>
               {splitText("Proficiency Levels")}
             </motion.h3>
             <div className="flex flex-wrap justify-center gap-6 sm:gap-8">
               {[
                 { color: "bg-blue-500", label: "Expert" },
                 { color: "bg-cyan-400", label: "Advanced" },
-                { color: "bg-section", label: "Intermediate" }
+                { color: "bg-section", label: "Intermediate" },
               ].map((level, index) => (
-                <motion.div 
+                <motion.div
                   key={level.label}
                   className="flex items-center"
                   variants={cardVariants}
                   whileHover="hover"
+                  whileTap="tap"
                   initial="hidden"
                   animate="visible"
                   transition={{ delay: index * 0.15 }}
+                  onTap={() => handleTap(`level-${level.label}`)}
                 >
-                  <motion.div 
-                    className={`w-4 h-4 ${level.color} rounded-lg mr-2`}
-                    whileHover={{ scale: 1.2, rotate: 45, boxShadow: "0 5px 15px rgba(59, 130, 246, 0.3)" }}
-                    transition={{ type: "spring", stiffness: 200 }}
+                  <motion.div
+                    className={`w-4 h-4 ${level.color} rounded-lg mr-2 ${
+                      tappedElements.has(`level-${level.label}`) ? "scale-120 rotate-45 shadow-lg" : ""
+                    }`}
+                    whileHover="hover"
+                    whileTap="tap"
+                    variants={cardVariants}
                   ></motion.div>
-                  <motion.span 
-                    className="text-muted text-sm sm:text-base"
-                    variants={textVariants}
-                  >
+                  <motion.span className="text-muted text-sm sm:text-base" variants={textVariants}>
                     {level.label}
                   </motion.span>
                 </motion.div>
@@ -984,8 +1106,8 @@ const Portfolio = () => {
       </motion.section>
 
       {/* Contact Section */}
-      <motion.section 
-        id="contact" 
+      <motion.section
+        id="contact"
         className="py-16 sm:py-20 relative"
         ref={contactRef}
         variants={sectionVariants}
@@ -993,7 +1115,7 @@ const Portfolio = () => {
         animate={contactControls}
         viewport={{ once: true, margin: "-200px" }}
       >
-        <motion.div 
+        <motion.div
           className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-cyan-400/5"
           style={{ y: parallaxY, translateY: parallaxY }}
           variants={parallaxVariants}
@@ -1001,37 +1123,24 @@ const Portfolio = () => {
           animate={contactControls}
         />
         <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
-          <motion.div 
-            className="text-center mb-12 sm:mb-16"
-            variants={sectionVariants}
-          >
+          <motion.div className="text-center mb-12 sm:mb-16" variants={sectionVariants}>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
               <span className="text-secondary">{splitText("Let's ")}</span>
-              <span className="bg-gradient-to-r from-blue-500 to-cyan-400 bg-clip-text text-transparent">{splitText("Connect")}</span>
+              <span className="bg-gradient-to-r from-blue-500 to-cyan-400 bg-clip-text text-transparent">
+                {splitText("Connect")}
+              </span>
             </h2>
-            <motion.p 
-              className="text-lg sm:text-xl text-muted"
-              variants={textVariants}
-            >
+            <motion.p className="text-lg sm:text-xl text-muted" variants={textVariants}>
               Ready to bring your ideas to life? Let's discuss your next project!
             </motion.p>
           </motion.div>
           <div className="grid md:grid-cols-2 gap-8 sm:gap-12">
-            <motion.div 
-              className="space-y-8"
-              variants={sectionVariants}
-            >
+            <motion.div className="space-y-8" variants={sectionVariants}>
               <div>
-                <motion.h3 
-                  className="text-xl sm:text-2xl font-semibold text-secondary mb-4"
-                  variants={textVariants}
-                >
+                <motion.h3 className="text-xl sm:text-2xl font-semibold text-secondary mb-4" variants={textVariants}>
                   {splitText("Get in Touch")}
                 </motion.h3>
-                <motion.p 
-                  className="text-base sm:text-lg text-muted leading-relaxed mb-8"
-                  variants={textVariants}
-                >
+                <motion.p className="text-base sm:text-lg text-muted leading-relaxed mb-8" variants={textVariants}>
                   I am always open to discussing new opportunities, innovative projects, or just having a conversation
                   about technology. Feel free to reach out!
                 </motion.p>
@@ -1040,36 +1149,38 @@ const Portfolio = () => {
                 {[
                   { title: "Email", content: "afnanjunjwadkar786@gmail.com", icon: "/images/img_overlay_blue_a200.svg" },
                   { title: "Phone", content: "+91 8884622068", icon: "/images/img_overlay_blue_a200_48x48.svg" },
-                  { title: "Location", content: "Belagavi, Karnataka", icon: "/images/img_overlay.svg" }
+                  { title: "Location", content: "Belagavi, Karnataka", icon: "/images/img_overlay.svg" },
                 ].map((item, index) => (
-                  <motion.div 
+                  <motion.div
                     key={index}
-                    className="bg-card-overlay border border-section rounded-lg p-4 sm:p-6"
+                    className={`bg-card-overlay border border-section rounded-lg p-4 sm:p-6 ${
+                      tappedElements.has(`contact-item-${index}`) ? "scale-105 -translate-y-2 rotate-2 shadow-xl" : ""
+                    }`}
                     variants={cardVariants}
                     whileHover="hover"
+                    whileTap="tap"
                     initial="hidden"
                     animate="visible"
                     transition={{ delay: index * 0.15 }}
+                    onTap={() => handleTap(`contact-item-${index}`)}
                   >
                     <div className="flex items-center">
-                      <motion.div 
-                        className="w-10 sm:w-12 h-10 sm:h-12 bg-highlight-light rounded-lg flex items-center justify-center mr-4"
-                        whileHover={{ scale: 1.2, rotate: 10, boxShadow: "0 5px 15px rgba(59, 130, 246, 0.3)" }}
-                        transition={{ type: "spring", stiffness: 200 }}
+                      <motion.div
+                        className={`w-10 sm:w-12 h-10 sm:h-12 bg-highlight-light rounded-lg flex items-center justify-center mr-4 ${
+                          tappedElements.has(`contact-icon-${index}`) ? "scale-120 rotate-10 shadow-lg" : ""
+                        }`}
+                        whileHover="hover"
+                        whileTap="tap"
+                        variants={cardVariants}
+                        onTap={() => handleTap(`contact-icon-${index}`)}
                       >
                         <img src={item.icon} alt={item.title} className="w-6 h-6" />
                       </motion.div>
                       <div>
-                        <motion.h4 
-                          className="text-secondary font-semibold text-sm sm:text-base"
-                          variants={textVariants}
-                        >
+                        <motion.h4 className="text-secondary font-semibold text-sm sm:text-base" variants={textVariants}>
                           {splitText(item.title)}
                         </motion.h4>
-                        <motion.p 
-                          className="text-muted text-sm sm:text-base"
-                          variants={textVariants}
-                        >
+                        <motion.p className="text-muted text-sm sm:text-base" variants={textVariants}>
                           {item.content}
                         </motion.p>
                       </div>
@@ -1077,48 +1188,50 @@ const Portfolio = () => {
                   </motion.div>
                 ))}
               </div>
-              <motion.div 
-                className="flex space-x-4"
-                variants={sectionVariants}
-              >
+              <motion.div className="flex space-x-4" variants={sectionVariants}>
                 {[
                   { onClick: handleGitHubClick, icon: "/images/img_component_1_gray_50.svg", alt: "GitHub" },
-                  { onClick: handleLinkedInClick, icon: "/images/img_component_7.svg", alt: "LinkedIn" }
+                  { onClick: handleLinkedInClick, icon: "/images/img_component_7.svg", alt: "LinkedIn" },
                 ].map((social, index) => (
                   <motion.button
                     key={index}
                     onClick={social.onClick}
-                    className="w-10 h-10 border border-blue-500/20 rounded-md flex items-center justify-center hover:bg-blue-500/20 transition-all duration-500"
+                    className={`w-10 h-10 border border-blue-500/20 rounded-md flex items-center justify-center hover:bg-blue-500/20 transition-all duration-500 ${
+                      tappedElements.has(`social-${index}`) ? "scale-110 bg-blue-500/20 shadow-md" : ""
+                    }`}
                     variants={buttonVariants}
                     whileHover="hover"
                     whileTap="tap"
                     initial="hidden"
                     animate="visible"
                     transition={{ delay: index * 0.15 }}
+                    onTap={() => handleTap(`social-${index}`)}
                   >
-                    <motion.img 
-                      src={social.icon} 
-                      alt={social.alt} 
+                    <motion.img
+                      src={social.icon}
+                      alt={social.alt}
                       className="w-5 h-5"
-                      whileHover={{ rotate: 360, scale: 1.2 }}
-                      transition={{ duration: 0.6 }}
+                      whileHover="hover"
+                      whileTap="tap"
+                      variants={buttonVariants}
                     />
                   </motion.button>
                 ))}
               </motion.div>
             </motion.div>
-            <motion.div 
-              className="bg-card-overlay border border-section rounded-lg p-6 sm:p-8"
+            <motion.div
+              className={`bg-card-overlay border border-section rounded-lg p-6 sm:p-8 ${
+                tappedElements.has("contact-form") ? "scale-105 -translate-y-2 rotate-2 shadow-xl" : ""
+              }`}
               variants={cardVariants}
               whileHover="hover"
+              whileTap="tap"
               initial="hidden"
               animate="visible"
               transition={{ delay: 0.3 }}
+              onTap={() => handleTap("contact-form")}
             >
-              <motion.h3 
-                className="text-xl sm:text-2xl font-semibold text-secondary mb-6"
-                variants={textVariants}
-              >
+              <motion.h3 className="text-xl sm:text-2xl font-semibold text-secondary mb-6" variants={textVariants}>
                 {splitText("Send a Message")}
               </motion.h3>
               <form onSubmit={handleFormSubmit} className="space-y-6">
@@ -1175,7 +1288,7 @@ const Portfolio = () => {
       </motion.section>
 
       {/* Footer */}
-      <motion.footer 
+      <motion.footer
         className="bg-card-overlay border-t border-section py-12 relative"
         ref={footerRef}
         variants={sectionVariants}
@@ -1183,7 +1296,7 @@ const Portfolio = () => {
         animate={footerControls}
         viewport={{ once: true, margin: "-200px" }}
       >
-        <motion.div 
+        <motion.div
           className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-cyan-400/5"
           style={{ y: parallaxY, translateY: parallaxY }}
           variants={parallaxVariants}
@@ -1193,26 +1306,21 @@ const Portfolio = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
             <motion.div variants={sectionVariants}>
-              <motion.div 
+              <motion.div
                 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-500 to-cyan-400 bg-clip-text text-transparent mb-4"
                 variants={textVariants}
-                whileHover={{ scale: 1.05 }}
+                whileHover="hover"
+                whileTap="tap"
                 transition={{ type: "spring", stiffness: 200 }}
               >
                 Afnan.dev
               </motion.div>
-              <motion.p 
-                className="text-muted text-sm sm:text-base leading-relaxed"
-                variants={textVariants}
-              >
+              <motion.p className="text-muted text-sm sm:text-base leading-relaxed" variants={textVariants}>
                 Crafting digital experiences with passion and precision. Let's build something amazing together.
               </motion.p>
             </motion.div>
             <motion.div variants={sectionVariants}>
-              <motion.h4 
-                className="text-secondary font-semibold mb-4 text-sm sm:text-base"
-                variants={textVariants}
-              >
+              <motion.h4 className="text-secondary font-semibold mb-4 text-sm sm:text-base" variants={textVariants}>
                 {splitText("Quick Links")}
               </motion.h4>
               <div className="space-y-2">
@@ -1220,13 +1328,17 @@ const Portfolio = () => {
                   <motion.button
                     key={section}
                     onClick={() => scrollToSection(section)}
-                    className="block text-muted hover:text-primary transition-colors duration-500 text-sm sm:text-base"
+                    onTouchStart={() => scrollToSection(section)}
+                    className={`block text-muted hover:text-primary transition-colors duration-500 text-sm sm:text-base ${
+                      tappedElements.has(`footer-nav-${section}`) ? "scale-108 rotate-3 shadow-lg" : ""
+                    }`}
                     variants={buttonVariants}
                     whileHover="hover"
                     whileTap="tap"
                     initial="hidden"
                     animate="visible"
                     transition={{ delay: index * 0.1 }}
+                    onTap={() => handleTap(`footer-nav-${section}`)}
                   >
                     {section.charAt(0).toUpperCase() + section.slice(1)}
                   </motion.button>
@@ -1234,43 +1346,36 @@ const Portfolio = () => {
               </div>
             </motion.div>
             <motion.div variants={sectionVariants}>
-              <motion.h4 
-                className="text-secondary font-semibold mb-4 text-sm sm:text-base"
-                variants={textVariants}
-              >
+              <motion.h4 className="text-secondary font-semibold mb-4 text-sm sm:text-base" variants={textVariants}>
                 {splitText("Services")}
               </motion.h4>
               <div className="space-y-2 text-muted text-sm sm:text-base">
-                {["Web Development", "Mobile App Development", "IoT Solutions", "UI/UX Design", "Technical Consulting"].map((service, index) => (
-                  <motion.p 
-                    key={service}
-                    variants={cardVariants}
-                    whileHover={{ x: 8, color: "#3b82f6" }}
-                    initial="hidden"
-                    animate="visible"
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    {service}
-                  </motion.p>
-                ))}
+                {["Web Development", "Mobile App Development", "IoT Solutions", "UI/UX Design", "Technical Consulting"].map(
+                  (service, index) => (
+                    <motion.p
+                      key={service}
+                      className={tappedElements.has(`service-${service}`) ? "translate-x-2 text-primary" : ""}
+                      variants={cardVariants}
+                      whileHover={{ x: 8, color: "#3b82f6" }}
+                      whileTap={{ x: 4, color: "#3b82f6" }}
+                      initial="hidden"
+                      animate="visible"
+                      transition={{ delay: index * 0.1 }}
+                      onTap={() => handleTap(`service-${service}`)}
+                    >
+                      {service}
+                    </motion.p>
+                  ),
+                )}
               </div>
             </motion.div>
           </div>
-          <motion.div 
-            className="border-t border-section pt-8"
-            variants={sectionVariants}
-          >
+          <motion.div className="border-t border-section pt-8" variants={sectionVariants}>
             <div className="flex flex-col md:flex-row justify-between items-center">
-              <motion.p 
-                className="text-muted text-sm"
-                variants={textVariants}
-              >
+              <motion.p className="text-muted text-sm" variants={textVariants}>
                 © 2024 Afnan Junjwadkar. All rights reserved.
               </motion.p>
-              <motion.p 
-                className="text-muted text-sm mt-4 md:mt-0"
-                variants={textVariants}
-              >
+              <motion.p className="text-muted text-sm mt-4 md:mt-0" variants={textVariants}>
                 Belagavi, India
               </motion.p>
             </div>
@@ -1278,7 +1383,7 @@ const Portfolio = () => {
         </div>
       </motion.footer>
     </div>
-  )
-}
+  );
+};
 
-export default Portfolio
+export default Portfolio;
